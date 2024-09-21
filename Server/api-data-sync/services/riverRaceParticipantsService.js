@@ -17,6 +17,7 @@ export const processAndInsertRiverRaceParticipantsData = async (
 ) => {
   if (!data) return;
 
+  // Get and format date & time values
   const currentTimestamp = new Date();
   const formattedTimestamp = getCurrentTimeStamp(currentTimestamp);
 
@@ -29,32 +30,34 @@ export const processAndInsertRiverRaceParticipantsData = async (
     lastRecordCreationTime
   );
 
+  // Calculated the hours passed since the last records were created
   const hoursSinceLastRecord = lastRecordCreationTime
     ? differenceInHours(formattedTimestamp, new Date(lastRecordCreationTime))
-    : Infinity; // If no record exists, treat it as infinite hours ago
-  console.log(`Last record creation time fetched: ${lastRecordCreationTime}`);
+    : Infinity;
 
-  // Determine if new records should be created (based on totalDecks = 0 and the 10-hour cooldown)
+  // Log for temporary debugging
   console.log(
     `Total Decks: ${totalDecks}, Hours since last record: ${hoursSinceLastRecord}`
   );
+
+  // Creates a 10-hours cooldown to avoid creating multiple records when totalDecks = 0
   const shouldCreateNewRecords = totalDecks === 0 && hoursSinceLastRecord >= 10;
-  console.log(`Should create new records: ${shouldCreateNewRecords}`);
 
   for (let clan of data.clans) {
     if (clan.tag === "#LVUQ9CYC") {
       for (let participant of clan.participants) {
-        // Use the last record creation time for the internalId
-        const recordDate = format(
+        // Innitialize internalIds dates
+        const lastRecordDate = format(
           new Date(lastRecordCreationTime || formattedTimestamp),
           "yyyy-MM-dd"
         );
-        const internalId = `${recordDate}_${participant.tag}`;
+        const newRecordDate = format(new Date(), "yyyy-MM-dd");
 
+        const internalId = `${lastRecordDate}_${participant.tag}`;
+        const newInternalId = `${newRecordDate}_${participant.tag}`;
+
+        // Insert new records for the day
         if (shouldCreateNewRecords) {
-          // Insert new records if fame has reset and 10-hour cooldown has passed
-          const currentDate = format(new Date(), "yyyy-MM-dd"); // Get the current date in "yyyy-MM-dd" format
-          const InsertinternalId = `${currentDate}_${participant.tag}`;
           const insertParticipantQuery = `
             INSERT INTO river_race_participants (
               internal_id,
@@ -69,7 +72,7 @@ export const processAndInsertRiverRaceParticipantsData = async (
             VALUES (?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?);
           `;
           await insertData(connection, insertParticipantQuery, [
-            InsertinternalId,
+            newInternalId,
             participant.tag,
             participant.name,
             participant.fame,
@@ -82,7 +85,7 @@ export const processAndInsertRiverRaceParticipantsData = async (
           // Update the last record creation time
           await updateLastRecordCreationTime(connection, formattedTimestamp);
         } else {
-          // Update existing records if total fame has not yet reset
+          // Update existing records
           const updateParticipantQuery = `
             UPDATE river_race_participants
             SET
