@@ -69,6 +69,6 @@ export const processAndInsertPeriodLogsData = async (connection, data) => {
     }
   }
 
-  const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-  console.log(`Period Logs updated at ${currentTime}`);
+  // const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+  // console.log(`Period Logs updated at ${currentTime}`);
 };

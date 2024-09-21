@@ -39,6 +39,6 @@ export const processAndInsertClanMembersData = async (connection, data) => {
   }
 
   // Log the update time after the loop
-  const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-  console.log(`Clan members updated at ${currentTime}`);
+  // const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+  // console.log(`Clan members updated at ${currentTime}`);
 };
