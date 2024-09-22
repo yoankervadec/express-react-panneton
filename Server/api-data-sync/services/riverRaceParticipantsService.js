@@ -25,7 +25,7 @@ export const processAndInsertRiverRaceParticipantsData = async (
   const lastRecordCreationTime = await getLastRecordCreationTime(connection);
 
   // Calculate total decks used for the clan
-  const totalDecks = await sumDecksUsedToday(
+  const totalDecksUsedToday = await sumDecksUsedToday(
     connection,
     lastRecordCreationTime
   );
@@ -37,11 +37,12 @@ export const processAndInsertRiverRaceParticipantsData = async (
 
   // Log for temporary debugging
   console.log(
-    `Total Decks: ${totalDecks}, Hours since last record: ${hoursSinceLastRecord}`
+    `Total Decks: ${totalDecksUsedToday}, Hours since last record: ${hoursSinceLastRecord}`
   );
 
-  // Creates a 10-hours cooldown to avoid creating multiple records when totalDecks = 0
-  const shouldCreateNewRecords = totalDecks === 0 && hoursSinceLastRecord >= 10;
+  // Creates a 10-hours cooldown to avoid creating multiple records when totalDecksUsedToday = 0
+  const shouldCreateNewRecords =
+    totalDecksUsedToday === 0 && hoursSinceLastRecord >= 10;
 
   for (let clan of data.clans) {
     if (clan.tag === "#LVUQ9CYC") {

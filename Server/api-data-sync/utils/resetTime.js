@@ -3,7 +3,7 @@
 import { formatInTimeZone } from "date-fns-tz";
 import { format } from "date-fns";
 
-// Utility function to get the formatted date
+// Utility function to get the current timestamp in "yyyy-MM-dd HH:mm" format
 export const getCurrentTimeStamp = (currentTimestamp) => {
   const formattedTimestamp = format(currentTimestamp, "yyyy-MM-dd HH:mm");
   return formattedTimestamp;
@@ -21,45 +21,44 @@ export const sumDecksUsedToday = async (connection) => {
     `;
 
     const [lastRecordResult] = await connection.query(lastRecordQuery);
-    const lastRecordCreatedAtTime = lastRecordResult.length
+    const lastRecordCreatedOnDate = lastRecordResult.length
       ? lastRecordResult[0].last_record_time
       : null;
 
-    if (!lastRecordCreatedAtTime) {
+    if (!lastRecordCreatedOnDate) {
       console.error("No last record creation time found.");
-      return 0; // Return default value to avoid further errors
+      return 0;
     }
 
     // Format to "yyyy-MM-dd HH:mm" in local timezone
-    const formattedDateTime = formatInTimeZone(
-      lastRecordCreatedAtTime,
+    const formattedLastRecordCreatedOnDate = formatInTimeZone(
+      lastRecordCreatedOnDate,
       "America/Montreal", // Adjust this to your timezone
       "yyyy-MM-dd"
     );
 
-    // Query to calculate totalDecks ignoring seconds
+    // Query to calculate totalDecksUsedToday ignoring seconds
     const decksQuery = `
-      SELECT SUM(player_decks_used_today) as totalDecks
+      SELECT SUM(player_decks_used_today) as totalDecksUsedToday
       FROM river_race_participants
-      WHERE DATE_FORMAT(date_created, '%Y-%m-%d') = ?
-      OR DATE_FORMAT(date_created, '%Y-%m-%d %H:%i:%s') LIKE CONCAT(?, '%');
+      WHERE DATE_FORMAT(date_created, '%Y-%m-%d') = ?;
     `;
 
     const [decksResult] = await connection.query(decksQuery, [
-      formattedDateTime,
-      formattedDateTime,
+      formattedLastRecordCreatedOnDate,
+      formattedLastRecordCreatedOnDate,
     ]);
 
-    // Convert totalDecks to an integer, return 0 if null
-    const totalDecks =
-      decksResult[0].totalDecks !== null
-        ? parseInt(decksResult[0].totalDecks, 10)
+    // Convert totalDecksUsedToday to an integer, return 0 if null
+    const totalDecksUsedToday =
+      decksResult[0].totalDecksUsedToday !== null
+        ? parseInt(decksResult[0].totalDecksUsedToday, 10)
         : 0;
 
-    return totalDecks;
+    return totalDecksUsedToday;
   } catch (error) {
     console.error("Error executing queries:", error);
-    return 0; // Return default value in case of error
+    return 0;
   }
 };
 
@@ -84,7 +83,6 @@ export const getLastRecordCreationTime = async (connection) => {
     );
     return formattedTime;
   }
-  // console.log(`Formatted last record time without seconds: ${formattedTime}`);
 
   return null;
 };
