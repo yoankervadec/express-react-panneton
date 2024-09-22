@@ -86,17 +86,17 @@ export const processAndInsertRiverRaceParticipantsData = async (
           // Update the last record creation time
           await updateLastRecordCreationTime(connection, formattedTimestamp);
         } else {
-          // Update existing records
+          // Update existing records preventing values from decreasing
           const updateParticipantQuery = `
             UPDATE river_race_participants
             SET
               last_updated = CURRENT_TIMESTAMP,
               player_name = ?,
-              player_fame = ?,
-              player_repair_points = ?,
-              player_boat_attacks = ?,
-              player_decks_used = ?,
-              player_decks_used_today = ?
+              player_fame = GREATEST(player_fame, ?),
+              player_repair_points = GREATEST(player_repair_points, ?),
+              player_boat_attacks = GREATEST(player_boat_attacks, ?),
+              player_decks_used = GREATEST(player_decks_used, ?),
+              player_decks_used_today = GREATEST(player_decks_used_today, ?)
             WHERE internal_id = ?;
           `;
           await insertData(connection, updateParticipantQuery, [

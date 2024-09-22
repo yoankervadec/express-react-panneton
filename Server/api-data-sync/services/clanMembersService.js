@@ -1,9 +1,9 @@
 //
-//
+// clanMembersService.js
+// Update clan_members table every 1 minute
 
 import { formatLastSeen } from "../utils/formatLastSeen.js";
 import { insertData } from "../utils/insertData.js";
-import { format } from "date-fns";
 
 export const processAndInsertClanMembersData = async (connection, data) => {
   if (!data) return;
@@ -37,8 +37,4 @@ export const processAndInsertClanMembersData = async (connection, data) => {
       item.donationsReceived,
     ]);
   }
-
-  // Log the update time after the loop
-  // const currentTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-  // console.log(`Clan members updated at ${currentTime}`);
 };
