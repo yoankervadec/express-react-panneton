@@ -5,11 +5,11 @@
 import { insertData } from "../utils/insertData.js";
 import { differenceInHours, format } from "date-fns";
 import {
-  sumDecksUsedToday,
   getLastRecordCreationTime,
   updateLastRecordCreationTime,
   getCurrentTimeStamp,
 } from "../utils/resetTime.js";
+import { getSumDecksUsedToday } from "./getSumDecksUsedToday.js";
 
 export const processAndInsertRiverRaceParticipantsData = async (
   connection,
@@ -25,10 +25,13 @@ export const processAndInsertRiverRaceParticipantsData = async (
   const lastRecordCreationTime = await getLastRecordCreationTime(connection);
 
   // Calculate total decks used for the clan
-  const totalDecksUsedToday = await sumDecksUsedToday(
-    connection,
-    lastRecordCreationTime
-  );
+  let totalDecksUsedToday;
+  try {
+    totalDecksUsedToday = await getSumDecksUsedToday();
+  } catch (error) {
+    console.error("Error fetching total decks used today:", error);
+    return; // Exit early if the data can't be fetched
+  }
 
   // Calculated the hours passed since the last records were created
   const hoursSinceLastRecord = lastRecordCreationTime
