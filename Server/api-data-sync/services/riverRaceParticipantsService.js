@@ -38,14 +38,9 @@ export const processAndInsertRiverRaceParticipantsData = async (
     ? differenceInHours(formattedTimestamp, new Date(lastRecordCreationTime))
     : Infinity;
 
-  // Log for temporary debugging
-  console.log(
-    `Total Decks: ${totalDecksUsedToday}, Hours since last record: ${hoursSinceLastRecord}`
-  );
-
-  // Creates a 10-hours cooldown to avoid creating multiple records when totalDecksUsedToday = 0
+  // Creates a 16-hours cooldown to avoid creating multiple records when totalDecksUsedToday = 0
   const shouldCreateNewRecords =
-    totalDecksUsedToday === 0 && hoursSinceLastRecord >= 10;
+    totalDecksUsedToday === 0 && hoursSinceLastRecord >= 16;
 
   for (let clan of data.clans) {
     if (clan.tag === "#LVUQ9CYC") {

@@ -1,17 +1,17 @@
 //
-//
+// getSumDecksUsedToday.js
 
 import { fetchData } from "../utils/fetchData.js";
 
 // Function to calculate the sum of decksUsedToday
 export async function getSumDecksUsedToday() {
   try {
-    // Fetch river race data (replace with the correct API endpoint)
+    // Fetch river race data
     const riverRaceData = await fetchData(
       "/clans/%23LVUQ9CYC/currentriverrace"
     );
 
-    const participants = riverRaceData.clan.participants || []; // Adjust according to the API response
+    const participants = riverRaceData.clan.participants || [];
 
     // Sum the `decksUsedToday` values
     const totalDecksUsedToday = participants.reduce((sum, participant) => {
